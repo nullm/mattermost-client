@@ -29,10 +29,10 @@ class Client extends EventEmitter {
         this.token = null;
 
         this.self = null;
-        this.channels = {};
-        this.users = {};
-        this.teams = {};
-        this.teamID = null;
+//        this.channels = {};
+//        this.users = {};
+//        this.teams = {};
+//        this.teamID = null;
 
         this.ws = null;
         this._messageID = 0;
@@ -56,12 +56,12 @@ class Client extends EventEmitter {
 
         // Binding because async calls galore
         this._onLogin = this._onLogin.bind(this);
-        this._onLoadUsers = this._onLoadUsers.bind(this);
-        this._onLoadUser = this._onLoadUser.bind(this);
-        this._onChannels = this._onChannels.bind(this);
-        this._onPreferences = this._onPreferences.bind(this);
-        this._onMe = this._onMe.bind(this);
-        this._onTeams = this._onTeams.bind(this);
+//        this._onLoadUsers = this._onLoadUsers.bind(this);
+//        this._onLoadUser = this._onLoadUser.bind(this);
+//        this._onChannels = this._onChannels.bind(this);
+//        this._onPreferences = this._onPreferences.bind(this);
+//        this._onMe = this._onMe.bind(this);
+//        this._onTeams = this._onTeams.bind(this);
     }
 
     login(email, password, mfaToken) {
@@ -99,9 +99,10 @@ class Client extends EventEmitter {
                 this.logger.info(`Websocket URL: ${this.socketUrl}`);
                 this.self = new User(data);
                 this.emit('loggedIn', this.self);
-                this.getMe();
-                this.getPreferences();
-                return this.getTeams();
+//                this.getMe();
+//                this.getPreferences();
+//                return this.getTeams();
+                return this.connect();
             }
         } else {
             this.emit('error', data);
@@ -110,85 +111,85 @@ class Client extends EventEmitter {
         }
     }
 
-    _onLoadUsers(data, headers, params) {
-        if (data && !data.error) {
-            for (let user of data) {
-              this.users[user.id] = user;
-            }
-            this.logger.info(`Found ${Object.keys(data).length} profiles.`);
-            this.emit('profilesLoaded', data);
-            if ((Object.keys(data).length > 0) && (params.page != null)) {
-              return this.loadUsers(params.page+1); // Trigger next page loading
-          }
-        } else {
-            this.logger.error('Failed to load profiles from server.');
-            return this.emit('error', { msg: 'failed to load profiles'});
-        }
-    }
+//    _onLoadUsers(data, headers, params) {
+//        if (data && !data.error) {
+//            for (let user of data) {
+//              this.users[user.id] = user;
+//            }
+//            this.logger.info(`Found ${Object.keys(data).length} profiles.`);
+//            this.emit('profilesLoaded', data);
+//            if ((Object.keys(data).length > 0) && (params.page != null)) {
+//              return this.loadUsers(params.page+1); // Trigger next page loading
+//          }
+//        } else {
+//            this.logger.error('Failed to load profiles from server.');
+//            return this.emit('error', { msg: 'failed to load profiles'});
+//        }
+//    }
 
-    _onLoadUser(data, headers, params) {
-        if (data && !data.error) {
-          this.users[data.id] = data;
-          return this.emit('profilesLoaded', [data]);
-      }
-    }
+//    _onLoadUser(data, headers, params) {
+//        if (data && !data.error) {
+//          this.users[data.id] = data;
+//          return this.emit('profilesLoaded', [data]);
+//      }
+//    }
 
-    _onChannels(data, headers, params) {
-        if (data && !data.error) {
-            for (let channel of data) {
-              this.channels[channel.id] = channel;
-            }
-            this.logger.info(`Found ${Object.keys(data).length} subscribed channels.`);
-            return this.emit('channelsLoaded', data);
-        } else {
-            this.logger.error(`Failed to get subscribed channels list from server: ${data.error}`);
-            return this.emit('error', { msg: 'failed to get channel list'});
-        }
-    }
+//    _onChannels(data, headers, params) {
+//        if (data && !data.error) {
+//            for (let channel of data) {
+//              this.channels[channel.id] = channel;
+//            }
+//            this.logger.info(`Found ${Object.keys(data).length} subscribed channels.`);
+//            return this.emit('channelsLoaded', data);
+//        } else {
+//            this.logger.error(`Failed to get subscribed channels list from server: ${data.error}`);
+//            return this.emit('error', { msg: 'failed to get channel list'});
+//        }
+//    }
 
-    _onPreferences(data, headers, params) {
-        if (data && !data.error) {
-            this.preferences = data;
-            this.emit('preferencesLoaded', data);
-            return this.logger.info('Loaded Preferences...');
-        } else {
-            this.logger.error(`Failed to load Preferences...${data.error}`);
-            return this.reconnect();
-        }
-    }
+//    _onPreferences(data, headers, params) {
+//        if (data && !data.error) {
+//            this.preferences = data;
+//            this.emit('preferencesLoaded', data);
+//            return this.logger.info('Loaded Preferences...');
+//        } else {
+//            this.logger.error(`Failed to load Preferences...${data.error}`);
+//            return this.reconnect();
+//        }
+//    }
 
-    _onMe(data, headers, params) {
-        if (data && !data.error) {
-            this.me = data;
-            this.emit('meLoaded', data);
-            return this.logger.info('Loaded Me...');
-        } else {
-            this.logger.error(`Failed to load Me...${data.error}`);
-            return this.reconnect();
-        }
-    }
+//    _onMe(data, headers, params) {
+//        if (data && !data.error) {
+//            this.me = data;
+//            this.emit('meLoaded', data);
+//            return this.logger.info('Loaded Me...');
+//        } else {
+//            this.logger.error(`Failed to load Me...${data.error}`);
+//            return this.reconnect();
+//        }
+//    }
 
-    _onTeams(data, headers, params) {
-        if (data && !data.error) {
-            this.teams = data;
-            this.emit('teamsLoaded', data);
-            this.logger.info(`Found ${Object.keys(this.teams).length} teams.`);
-            for (let t of this.teams) {
-                this.logger.debug(`Testing ${t.name} == ${this.group}`);
-                if (t.name.toLowerCase() === this.group.toLowerCase()) {
-                    this.logger.info(`Found team! ${t.id}`);
-                    this.teamID = t.id;
-                    break;
-                }
-            }
-            this.loadUsers();
-            this.loadChannels();
-            return this.connect(); // FIXME
-        } else {
-            this.logger.error('Failed to load Teams...');
-            return this.reconnect();
-        }
-    }
+//    _onTeams(data, headers, params) {
+//        if (data && !data.error) {
+//            this.teams = data;
+//            this.emit('teamsLoaded', data);
+//            this.logger.info(`Found ${Object.keys(this.teams).length} teams.`);
+//            for (let t of this.teams) {
+//                this.logger.debug(`Testing ${t.name} == ${this.group}`);
+//                if (t.name.toLowerCase() === this.group.toLowerCase()) {
+//                    this.logger.info(`Found team! ${t.id}`);
+//                    this.teamID = t.id;
+//                    break;
+//                }
+//            }
+//            this.loadUsers();
+//            this.loadChannels();
+//            return this.connect(); // FIXME
+//        } else {
+//            this.logger.error('Failed to load Teams...');
+//            return this.reconnect();
+//        }
+//    }
 
     channelRoute(channelId) {
         return this.teamRoute() + '/channels/' + channelId;
@@ -198,43 +199,43 @@ class Client extends EventEmitter {
         return usersRoute + '/me/teams/' + this.teamID;
     }
 
-    getMe() {
-        const uri = usersRoute + '/me';
-        this.logger.info(`Loading ${uri}`);
-        return this._apiCall('GET', uri, null, this._onMe);
-    }
+//    getMe() {
+//        const uri = usersRoute + '/me';
+//        this.logger.info(`Loading ${uri}`);
+//        return this._apiCall('GET', uri, null, this._onMe);
+//    }
 
-    getPreferences() {
-        const uri = usersRoute + '/me/preferences';
-        this.logger.info(`Loading ${uri}`);
-        return this._apiCall('GET', uri, null, this._onPreferences);
-    }
+//    getPreferences() {
+//        const uri = usersRoute + '/me/preferences';
+//        this.logger.info(`Loading ${uri}`);
+//        return this._apiCall('GET', uri, null, this._onPreferences);
+//    }
 
-    getTeams() {
-        const uri = usersRoute + '/me/teams';
-        this.logger.info(`Loading ${uri}`);
-        return this._apiCall('GET', uri, null, this._onTeams);
-    }
+//    getTeams() {
+//        const uri = usersRoute + '/me/teams';
+//        this.logger.info(`Loading ${uri}`);
+//        return this._apiCall('GET', uri, null, this._onTeams);
+//    }
 
-    loadUsers(page) {
-        if (page == null) { page = 0; }
-        const uri =  `/users?page=${page}&per_page=200&in_team=${this.teamID}`;
-        this.logger.info(`Loading ${uri}`);
-        return this._apiCall('GET', uri, null, this._onLoadUsers, { page });
-    }
+//    loadUsers(page) {
+//        if (page == null) { page = 0; }
+//        const uri =  `/users?page=${page}&per_page=200&in_team=${this.teamID}`;
+//        this.logger.info(`Loading ${uri}`);
+//        return this._apiCall('GET', uri, null, this._onLoadUsers, { page });
+//    }
 
-    loadUser(user_id) {
-        const uri = `/users/${user_id}`;
-        this.logger.info(`Loading ${uri}`);
-        return this._apiCall('GET', uri, null, this._onLoadUser, {});
-    }
+//    loadUser(user_id) {
+//        const uri = `/users/${user_id}`;
+//        this.logger.info(`Loading ${uri}`);
+//        return this._apiCall('GET', uri, null, this._onLoadUser, {});
+//    }
 
-    loadChannels(page) {
-        if (page == null) { page = 0; }
-        const uri = `/users/me/teams/${this.teamID}/channels`;
-        this.logger.info(`Loading ${uri}`);
-        return this._apiCall('GET', uri, null, this._onChannels);
-    }
+//    loadChannels(page) {
+//        if (page == null) { page = 0; }
+//        const uri = `/users/me/teams/${this.teamID}/channels`;
+//        this.logger.info(`Loading ${uri}`);
+//        return this._apiCall('GET', uri, null, this._onChannels);
+//    }
 
 
     connect() {
@@ -406,42 +407,42 @@ class Client extends EventEmitter {
         }
     }
 
-    getUserByID(id) {
-        return this.users[id];
-    }
+//    getUserByID(id) {
+//        return this.users[id];
+//    }
 
-    getUserByEmail(email) {
-        for (let u in this.users) {
-            if (this.users[u].email === email) {
-                return this.users[u];
-            }
-        }
-    }
+//    getUserByEmail(email) {
+//        for (let u in this.users) {
+//            if (this.users[u].email === email) {
+//                return this.users[u];
+//            }
+//        }
+//    }
 
-    getUserDirectMessageChannel(userID, callback) {
-        // check if channel already exists
-        let channel = this.self.id + "__" + userID;
-        channel = this.findChannelByName(channel);
-        if (!channel) {
-            // check if channel in other direction exists
-            channel = userID + "__" + this.self.id;
-            channel = this.findChannelByName(channel);
-        }
-        if (channel) {
-            // channel obviously doesn't exist, let's create it
-            if (callback != null) { callback(channel); }
-            return;
-        }
-        return this.createDirectChannel(userID,callback);
-    }
+//    getUserDirectMessageChannel(userID, callback) {
+//        // check if channel already exists
+//        let channel = this.self.id + "__" + userID;
+//        channel = this.findChannelByName(channel);
+//        if (!channel) {
+//            // check if channel in other direction exists
+//            channel = userID + "__" + this.self.id;
+//            channel = this.findChannelByName(channel);
+//        }
+//        if (channel) {
+//            // channel obviously doesn't exist, let's create it
+//            if (callback != null) { callback(channel); }
+//            return;
+//        }
+//        return this.createDirectChannel(userID,callback);
+//    }
 
-    getAllChannels() {
-        return this.channels;
-    }
+//    getAllChannels() {
+//        return this.channels;
+//    }
 
-    getChannelByID(id) {
-        return this.channels[id];
-    }
+//    getChannelByID(id) {
+//        return this.channels[id];
+//    }
 
     customMessage(postData, channelID) {
         let chunks;
@@ -461,77 +462,77 @@ class Client extends EventEmitter {
         });
     }
 
-    dialog(trigger_id, url, dialog) {
-        const postData = {
-            trigger_id: trigger_id,
-            url: url,
-            dialog: dialog
-        };
-        return this._apiCall('POST', '/actions/dialogs/open', postData, (data, headers) => {
-            this.logger.debug('Created dialog');
-        });
-    }
+//    dialog(trigger_id, url, dialog) {
+//        const postData = {
+//            trigger_id: trigger_id,
+//            url: url,
+//            dialog: dialog
+//        };
+//        return this._apiCall('POST', '/actions/dialogs/open', postData, (data, headers) => {
+//            this.logger.debug('Created dialog');
+//        });
+//    }
     
-    editPost(post_id, msg) {
-        let postData = msg;
-        if (typeof msg === 'string') {
-            postData = {
-                id: post_id,
-                message: msg
-            };
-        }
-        return this._apiCall('PUT', '/posts/' + post_id, postData, (data, headers) => {
-            this.logger.debug('Edited post');
-        });
-    }
+//    editPost(post_id, msg) {
+//        let postData = msg;
+//        if (typeof msg === 'string') {
+//            postData = {
+//                id: post_id,
+//                message: msg
+//            };
+//        }
+//        return this._apiCall('PUT', '/posts/' + post_id, postData, (data, headers) => {
+//            this.logger.debug('Edited post');
+//        });
+//    }
 
-    uploadFile(channel_id, file, callback) {
-        const formData = {
-            channel_id: channel_id,
-            files: file
-        }
-
-        return this._apiCall({ method: 'POST'}, '/files', formData, (data, headers) => {
-            this.logger.debug('Posted file');
-            return callback(data);
-        });
-    }
+//    uploadFile(channel_id, file, callback) {
+//        const formData = {
+//            channel_id: channel_id,
+//            files: file
+//        }
+//
+//        return this._apiCall({ method: 'POST'}, '/files', formData, (data, headers) => {
+//            this.logger.debug('Posted file');
+//            return callback(data);
+//        });
+//    }
     
-    react(messageID, emoji) {
-        const postData = {
-            user_id: this.self.id,
-            post_id: messageID,
-            emoji_name: emoji,
-            create_at: 0
-        };
-        return this._apiCall('POST', '/reactions', postData, (data, headers) => {
-            this.logger.debug('Created reaction');
-        });
-    }
+//    react(messageID, emoji) {
+//        const postData = {
+//            user_id: this.self.id,
+//            post_id: messageID,
+//            emoji_name: emoji,
+//            create_at: 0
+//        };
+//        return this._apiCall('POST', '/reactions', postData, (data, headers) => {
+//            this.logger.debug('Created reaction');
+//        });
+//    }
 
-    unreact(messageID, emoji) {
-        const uri = `/users/me/posts/${messageID}/reactions/${emoji}`;
-        return this._apiCall('DELETE', uri, [], (data, headers) => {
-            this.logger.debug('Deleted reaction');
-        });
-    }
+//    unreact(messageID, emoji) {
+//        const uri = `/users/me/posts/${messageID}/reactions/${emoji}`;
+//        return this._apiCall('DELETE', uri, [], (data, headers) => {
+//            this.logger.debug('Deleted reaction');
+//        });
+//    }
 
-    createDirectChannel(userID, callback) {
-        const postData = [userID, this.self.id];
-        return this._apiCall('POST', '/channels/direct', postData, (data, headers) => {
-            this.logger.info('Created Direct Channel.');
-            if (callback != null) { return callback(data); }
-        });
-    }
+//    createDirectChannel(userID, callback) {
+//        const postData = [userID, this.self.id];
+//        return this._apiCall('POST', '/channels/direct', postData, (data, headers) => {
+//            this.logger.info('Created Direct Channel.');
+//            if (callback != null) { return callback(data); }
+//        });
+//    }
 
-    findChannelByName(name) {
-        for (let c in this.channels) {
-            if ((this.channels[c].name === name) || (this.channels[c].display_name === name)) {
-                return this.channels[c];
-            }
-        }
-        return null;
-    }
+//    findChannelByName(name) {
+//        for (let c in this.channels) {
+//            if ((this.channels[c].name === name) || (this.channels[c].display_name === name)) {
+//                return this.channels[c];
+//            }
+//        }
+//        return null;
+//    }
 
     _chunkMessage(msg) {
         if (!msg) {
@@ -581,17 +582,17 @@ class Client extends EventEmitter {
         });
     }
 
-    setChannelHeader(channelID, header) {
-        const postData = {
-            channel_id: channelID,
-            channel_header: header
-        };
-
-        return this._apiCall('POST', this.teamRoute() + '/channels/update_header', postData, (data, header) => {
-            this.logger.debug('Channel header updated.');
-            return true;
-        });
-    }
+//    setChannelHeader(channelID, header) {
+//        const postData = {
+//            channel_id: channelID,
+//            channel_header: header
+//        };
+//
+//        return this._apiCall('POST', this.teamRoute() + '/channels/update_header', postData, (data, header) => {
+//            this.logger.debug('Channel header updated.');
+//            return true;
+//        });
+//    }
 
     // Private functions
     //
