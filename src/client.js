@@ -392,7 +392,7 @@ class Client extends EventEmitter {
                 // Generic handler
                 return this.emit(message.event, message);
             case 'new_user':
-                this.loadUser(message.data.user_id);
+//                this.loadUser(message.data.user_id);
                 return this.emit('new_user', message);
             default:
                 // Check for `pong` response
